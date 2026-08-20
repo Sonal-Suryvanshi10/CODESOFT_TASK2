@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
+    <title>💰 Expense Tracker · Smart Finance</title>
+    <!-- Google Font & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="app-wrapper" id="app">
+        <!-- Header -->
+        <div class="app-header">
+            <div class="logo-area">
+                <span class="logo-icon"><i class="fas fa-wallet"></i></span>
+                <h1>Expense Tracker</h1>
+            </div>
+            <div class="header-controls">
+                <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+            <div class="summary-card income">
+                <span class="label"><i class="fas fa-arrow-up"></i> Total Income</span>
+                <span class="value" id="totalIncome">₹0</span>
+            </div>
+            <div class="summary-card expenses">
+                <span class="label"><i class="fas fa-arrow-down"></i> Total Expenses</span>
+                <span class="value" id="totalExpenses">₹0</span>
+            </div>
+            <div class="summary-card balance">
+                <span class="label"><i class="fas fa-scale-balanced"></i> Current Balance</span>
+                <span class="value" id="balance">₹0</span>
+            </div>
+        </div>
+
+        <!-- Add Transaction -->
+        <div class="add-section">
+            <div class="field">
+                <label><i class="fas fa-tag"></i> Type</label>
+                <select id="txType">
+                    <option value="expense">💸 Expense</option>
+                    <option value="income">💰 Income</option>
+                </select>
+            </div>
+            <div class="field">
+                <label><i class="fas fa-rupee-sign"></i> Amount</label>
+                <input type="number" id="txAmount" placeholder="0" min="1" step="1" />
+            </div>
+            <div class="field">
+                <label><i class="fas fa-list"></i> Category</label>
+                <select id="txCategory">
+                    <option value="salary">💰 Salary</option>
+                    <option value="food">🍔 Food</option>
+                    <option value="travel">🚗 Travel</option>
+                    <option value="shopping">🛍️ Shopping</option>
+                    <option value="bills">📄 Bills</option>
+                    <option value="education">📚 Education</option>
+                    <option value="entertainment">🎬 Entertainment</option>
+                    <option value="other">📦 Other</option>
+                </select>
+            </div>
+            <div class="field">
+                <label><i class="far fa-calendar-alt"></i> Date</label>
+                <input type="date" id="txDate" />
+            </div>
+            <div class="field" style="flex:0.8;">
+                <label><i class="fas fa-pencil"></i> Description</label>
+                <input type="text" id="txDesc" placeholder="Optional" maxlength="40" />
+            </div>
+            <button class="btn-add" id="addBtn"><i class="fas fa-plus-circle"></i> Add</button>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label for="filterCategory"><i class="fas fa-filter"></i> Filter by Category</label>
+                <select id="filterCategory">
+                    <option value="all">📋 All</option>
+                    <option value="salary">💰 Salary</option>
+                    <option value="food">🍔 Food</option>
+                    <option value="travel">🚗 Travel</option>
+                    <option value="shopping">🛍️ Shopping</option>
+                    <option value="bills">📄 Bills</option>
+                    <option value="education">📚 Education</option>
+                    <option value="entertainment">🎬 Entertainment</option>
+                    <option value="other">📦 Other</option>
+                </select>
+                <button class="clear-filter" id="clearFilterBtn"><i class="fas fa-times-circle"></i> Clear</button>
+            </div>
+            <span class="transaction-count" id="txCount">0 transactions</span>
+        </div>
+
+        <!-- Transaction List -->
+        <div class="transaction-list" id="transactionList"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
