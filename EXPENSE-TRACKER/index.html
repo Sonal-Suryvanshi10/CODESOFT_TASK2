@@ -2,107 +2,211 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes" />
-    <title>💰 Expense Tracker · Smart Finance</title>
-    <!-- Google Font & Icons -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense Tracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="app-wrapper" id="app">
-        <!-- Header -->
-        <div class="app-header">
-            <div class="logo-area">
-                <span class="logo-icon"><i class="fas fa-wallet"></i></span>
+    <!-- Auth Container -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <i class="fas fa-wallet"></i>
                 <h1>Expense Tracker</h1>
             </div>
-            <div class="header-controls">
-                <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
-                    <i class="fas fa-moon"></i>
-                </button>
+            
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form">
+                <h2>Welcome Back</h2>
+                <p>Login to manage your expenses</p>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="loginEmail" placeholder="Enter your email" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" />
+                </div>
+                <button id="loginBtn" class="auth-btn"><i class="fas fa-sign-in-alt"></i> Login</button>
+                <p class="auth-switch">Don't have an account? <span id="showSignup">Sign Up</span></p>
+                <div id="loginError" class="auth-error"></div>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signupForm" class="auth-form" style="display:none;">
+                <h2>Create Account</h2>
+                <p>Start tracking your expenses today</p>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Name</label>
+                    <input type="text" id="signupName" placeholder="Enter your name" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="signupEmail" placeholder="Enter your email" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Password</label>
+                    <input type="password" id="signupPassword" placeholder="Create a password (min 6 chars)" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-check-circle"></i> Confirm Password</label>
+                    <input type="password" id="signupConfirmPassword" placeholder="Re-enter your password" />
+                </div>
+                <button id="signupBtn" class="auth-btn"><i class="fas fa-user-plus"></i> Sign Up</button>
+                <p class="auth-switch">Already have an account? <span id="showLogin">Login</span></p>
+                <div id="signupError" class="auth-error"></div>
             </div>
         </div>
-
-        <!-- Summary Cards -->
-        <div class="summary-grid">
-            <div class="summary-card income">
-                <span class="label"><i class="fas fa-arrow-up"></i> Total Income</span>
-                <span class="value" id="totalIncome">₹0</span>
-            </div>
-            <div class="summary-card expenses">
-                <span class="label"><i class="fas fa-arrow-down"></i> Total Expenses</span>
-                <span class="value" id="totalExpenses">₹0</span>
-            </div>
-            <div class="summary-card balance">
-                <span class="label"><i class="fas fa-scale-balanced"></i> Current Balance</span>
-                <span class="value" id="balance">₹0</span>
-            </div>
-        </div>
-
-        <!-- Add Transaction -->
-        <div class="add-section">
-            <div class="field">
-                <label><i class="fas fa-tag"></i> Type</label>
-                <select id="txType">
-                    <option value="expense">💸 Expense</option>
-                    <option value="income">💰 Income</option>
-                </select>
-            </div>
-            <div class="field">
-                <label><i class="fas fa-rupee-sign"></i> Amount</label>
-                <input type="number" id="txAmount" placeholder="0" min="1" step="1" />
-            </div>
-            <div class="field">
-                <label><i class="fas fa-list"></i> Category</label>
-                <select id="txCategory">
-                    <option value="salary">💰 Salary</option>
-                    <option value="food">🍔 Food</option>
-                    <option value="travel">🚗 Travel</option>
-                    <option value="shopping">🛍️ Shopping</option>
-                    <option value="bills">📄 Bills</option>
-                    <option value="education">📚 Education</option>
-                    <option value="entertainment">🎬 Entertainment</option>
-                    <option value="other">📦 Other</option>
-                </select>
-            </div>
-            <div class="field">
-                <label><i class="far fa-calendar-alt"></i> Date</label>
-                <input type="date" id="txDate" />
-            </div>
-            <div class="field" style="flex:0.8;">
-                <label><i class="fas fa-pencil"></i> Description</label>
-                <input type="text" id="txDesc" placeholder="Optional" maxlength="40" />
-            </div>
-            <button class="btn-add" id="addBtn"><i class="fas fa-plus-circle"></i> Add</button>
-        </div>
-
-        <!-- Filter Bar -->
-        <div class="filter-bar">
-            <div class="filter-group">
-                <label for="filterCategory"><i class="fas fa-filter"></i> Filter by Category</label>
-                <select id="filterCategory">
-                    <option value="all">📋 All</option>
-                    <option value="salary">💰 Salary</option>
-                    <option value="food">🍔 Food</option>
-                    <option value="travel">🚗 Travel</option>
-                    <option value="shopping">🛍️ Shopping</option>
-                    <option value="bills">📄 Bills</option>
-                    <option value="education">📚 Education</option>
-                    <option value="entertainment">🎬 Entertainment</option>
-                    <option value="other">📦 Other</option>
-                </select>
-                <button class="clear-filter" id="clearFilterBtn"><i class="fas fa-times-circle"></i> Clear</button>
-            </div>
-            <span class="transaction-count" id="txCount">0 transactions</span>
-        </div>
-
-        <!-- Transaction List -->
-        <div class="transaction-list" id="transactionList"></div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Home Page -->
+    <div id="homePage" style="display:none;">
+        <div class="app-wrapper">
+            <!-- Header -->
+            <div class="app-header">
+                <div class="logo-area">
+                    <span class="logo-icon"><i class="fas fa-wallet"></i></span>
+                    <h1>Expense Tracker</h1>
+                </div>
+                <div class="header-controls">
+                    <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
+                        <i class="fas fa-sun"></i>
+                    </button>
+                    <div class="profile-dropdown">
+                        <button class="profile-btn" id="profileBtn">
+                            <i class="fas fa-user-circle"></i>
+                            <span id="userNameDisplay">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            <div class="dropdown-item" id="settingsOption">
+                                <i class="fas fa-cog"></i> Settings
+                            </div>
+                            <div class="dropdown-item logout" id="logoutBtn">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Modal -->
+            <div class="settings-modal" id="settingsModal">
+                <div class="settings-content">
+                    <div class="settings-header">
+                        <h2><i class="fas fa-cog"></i> Settings</h2>
+                        <button id="closeSettings" class="close-btn">&times;</button>
+                    </div>
+                    <div class="settings-body">
+                        <div class="setting-item">
+                            <label><i class="fas fa-moon"></i> Dark Mode</label>
+                            <label class="switch">
+                                <input type="checkbox" id="darkModeSwitch" checked />
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label><i class="fas fa-user"></i> Account</label>
+                            <span id="settingsUserEmail" style="color: var(--text-muted);"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-grid">
+                <div class="summary-card income">
+                    <span class="label"><i class="fas fa-arrow-up"></i> Total Income</span>
+                    <span class="value" id="totalIncome">₹0</span>
+                </div>
+                <div class="summary-card expenses">
+                    <span class="label"><i class="fas fa-arrow-down"></i> Total Expenses</span>
+                    <span class="value" id="totalExpenses">₹0</span>
+                </div>
+                <div class="summary-card balance">
+                    <span class="label"><i class="fas fa-scale-balanced"></i> Current Balance</span>
+                    <span class="value" id="balance">₹0</span>
+                </div>
+            </div>
+
+            <!-- Add Transaction -->
+            <div class="add-section">
+                <div class="field">
+                    <label><i class="fas fa-tag"></i> Type</label>
+                    <select id="txType">
+                        <option value="expense">💸 Expense</option>
+                        <option value="income">💰 Income</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label><i class="fas fa-rupee-sign"></i> Amount</label>
+                    <input type="number" id="txAmount" placeholder="0" min="1" step="1" />
+                </div>
+                <div class="field">
+                    <label><i class="fas fa-list"></i> Category</label>
+                    <select id="txCategory">
+                        <option value="salary">💰 Salary</option>
+                        <option value="food">🍔 Food</option>
+                        <option value="travel">🚗 Travel</option>
+                        <option value="shopping">🛍️ Shopping</option>
+                        <option value="bills">📄 Bills</option>
+                        <option value="education">📚 Education</option>
+                        <option value="entertainment">🎬 Entertainment</option>
+                        <option value="other">📦 Other</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label><i class="far fa-calendar-alt"></i> Date</label>
+                    <input type="date" id="txDate" />
+                </div>
+                <div class="field" style="flex:0.8;">
+                    <label><i class="fas fa-pencil"></i> Description</label>
+                    <input type="text" id="txDesc" placeholder="Optional" maxlength="40" />
+                </div>
+                <button class="btn-add" id="addBtn"><i class="fas fa-plus-circle"></i> Add</button>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label for="filterCategory"><i class="fas fa-filter"></i> Filter by Category</label>
+                    <select id="filterCategory">
+                        <option value="all">📋 All</option>
+                        <option value="salary">💰 Salary</option>
+                        <option value="food">🍔 Food</option>
+                        <option value="travel">🚗 Travel</option>
+                        <option value="shopping">🛍️ Shopping</option>
+                        <option value="bills">📄 Bills</option>
+                        <option value="education">📚 Education</option>
+                        <option value="entertainment">🎬 Entertainment</option>
+                        <option value="other">📦 Other</option>
+                    </select>
+                    <button class="clear-filter" id="clearFilterBtn"><i class="fas fa-times-circle"></i> Clear</button>
+                </div>
+                <span class="transaction-count" id="txCount">0 transactions</span>
+            </div>
+
+            <!-- Transaction List -->
+            <div class="transaction-list" id="transactionList"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js"
+            }
+        }
+    </script>
+
+    <!-- Single JS File -->
+    <script type="module" src="script.js"></script>
 </body>
 </html>
