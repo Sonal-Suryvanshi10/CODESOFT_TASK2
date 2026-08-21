@@ -197,13 +197,43 @@ loginPassword.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') loginBtn.click();
 });
 
-// Logout
+// ==================== LOGOUT FUNCTION (FIXED) ====================
 logoutBtn.addEventListener('click', async () => {
     if (confirm('Are you sure you want to logout?')) {
         try {
+            // First unsubscribe from Firestore listener
+            if (unsubscribe) {
+                unsubscribe();
+                unsubscribe = null;
+            }
+            
+            // Clear transactions
+            transactions = [];
+            renderTransactions();
+            
+            // Sign out from Firebase
             await signOut(auth);
+            
+            // Manually hide home page and show auth container
+            homePage.style.display = 'none';
+            authContainer.style.display = 'flex';
+            
+            // Show login form by default
+            loginForm.style.display = 'block';
+            signupForm.style.display = 'none';
+            
+            // Clear login fields
+            loginEmail.value = '';
+            loginPassword.value = '';
+            loginError.textContent = '';
+            
+            // Close dropdown if open
+            dropdownMenu.classList.remove('show');
+            
+            console.log('✅ Logged out successfully');
         } catch (error) {
             alert('Error logging out: ' + error.message);
+            console.error('Logout error:', error);
         }
     }
 });
@@ -470,9 +500,10 @@ clearFilterBtn.addEventListener('click', () => {
     renderTransactions();
 });
 
-// ==================== AUTH STATE OBSERVER ====================
+// ==================== AUTH STATE OBSERVER (FIXED) ====================
 onAuthStateChanged(auth, (user) => {
     if (user) {
+        // User is logged in
         currentUser = user;
         authContainer.style.display = 'none';
         homePage.style.display = 'block';
@@ -485,16 +516,34 @@ onAuthStateChanged(auth, (user) => {
         
         // Load user's transactions
         loadUserTransactions(user.uid);
+        console.log('✅ User logged in:', user.email);
     } else {
+        // User is logged out
         currentUser = null;
-        authContainer.style.display = 'flex';
-        homePage.style.display = 'none';
+        
+        // Unsubscribe from Firestore listener
         if (unsubscribe) {
             unsubscribe();
             unsubscribe = null;
         }
+        
+        // Clear transactions
         transactions = [];
         renderTransactions();
+        
+        // Show auth container, hide home page
+        authContainer.style.display = 'flex';
+        homePage.style.display = 'none';
+        
+        // Show login form by default
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+        
+        // Clear any error messages
+        loginError.textContent = '';
+        signupError.textContent = '';
+        
+        console.log('👋 User logged out');
     }
 });
 
