@@ -81,6 +81,7 @@ let currentUser = null;
 let transactions = [];
 let filterCategory = 'all';
 let unsubscribe = null;
+let isLoggingOut = false;
 
 // ==================== HELPERS ====================
 function formatCurrency(amount) {
@@ -105,6 +106,34 @@ function showHomePage() {
     homePage.style.display = 'block';
     console.log('🏠 Showing home page');
 }
+
+// ==================== AUTO LOGOUT ON TAB/WINDOW CLOSE ====================
+// This function will be called when user closes the tab or browser
+async function handleTabClose() {
+    if (currentUser && !isLoggingOut) {
+        console.log('🔄 Tab closing - auto logout user');
+        try {
+            await signOut(auth);
+            console.log('✅ User auto-logged out on tab close');
+        } catch (error) {
+            console.error('Error during auto logout:', error);
+        }
+    }
+}
+
+// Detect when user is navigating away or closing tab
+window.addEventListener('beforeunload', handleTabClose);
+
+// Detect when user is leaving the page (for modern browsers)
+window.addEventListener('pagehide', handleTabClose);
+
+// Also detect visibility change (for mobile browsers)
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+        // User switched to another tab or minimized
+        // We don't logout here, only when actually closing
+    }
+});
 
 // ==================== AUTH FUNCTIONS ====================
 showSignup.addEventListener('click', () => {
@@ -201,33 +230,29 @@ loginPassword.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') loginBtn.click();
 });
 
-// ==================== LOGOUT  ====================
+// ==================== LOGOUT ====================
 logoutBtn.addEventListener('click', async () => {
     if (confirm('Are you sure you want to logout?')) {
+        isLoggingOut = true;
         try {
-            // 1. Unsubscribe from Firestore
             if (unsubscribe) {
                 unsubscribe();
                 unsubscribe = null;
             }
             
-            // 2. Clear transactions
             transactions = [];
             renderTransactions();
             
-            // 3. Sign out from Firebase
             await signOut(auth);
-            
-            // 4. FORCEFULLY show login page (even if auth state doesn't trigger)
             showLoginPage();
-            
-            // 5. Close dropdown
             dropdownMenu.classList.remove('show');
             
             console.log('✅ Logged out successfully');
         } catch (error) {
             alert('Error logging out: ' + error.message);
             console.error('Logout error:', error);
+        } finally {
+            isLoggingOut = false;
         }
     }
 });
@@ -490,7 +515,6 @@ clearFilterBtn.addEventListener('click', () => {
 // ==================== AUTH STATE OBSERVER ====================
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // User is logged in
         currentUser = user;
         showHomePage();
         userNameDisplay.textContent = user.displayName || user.email;
@@ -502,7 +526,6 @@ onAuthStateChanged(auth, (user) => {
         loadUserTransactions(user.uid);
         console.log('✅ User logged in:', user.email);
     } else {
-        // User is logged out
         currentUser = null;
         
         if (unsubscribe) {
@@ -513,9 +536,8 @@ onAuthStateChanged(auth, (user) => {
         transactions = [];
         renderTransactions();
         
-        // Show login page
         showLoginPage();
-        console.log('👋 User logged out - showing login page');
+        console.log('👋 User logged out');
     }
 });
 
@@ -560,3 +582,4 @@ txDesc.addEventListener('keypress', (e) => {
 });
 
 console.log('✅ Expense Tracker App Loaded Successfully!');
+console.log('🔒 Auto-logout enabled on tab/window close');
