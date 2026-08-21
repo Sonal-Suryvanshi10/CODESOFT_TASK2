@@ -36,7 +36,6 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // ==================== DOM ELEMENTS ====================
-// Auth
 const authContainer = document.getElementById('authContainer');
 const homePage = document.getElementById('homePage');
 const loginForm = document.getElementById('loginForm');
@@ -56,12 +55,8 @@ const signupError = document.getElementById('signupError');
 const logoutBtn = document.getElementById('logoutBtn');
 const userNameDisplay = document.getElementById('userNameDisplay');
 const settingsUserEmail = document.getElementById('settingsUserEmail');
-
-// Profile Dropdown
 const profileBtn = document.getElementById('profileBtn');
 const dropdownMenu = document.getElementById('dropdownMenu');
-
-// Settings Modal
 const settingsOption = document.getElementById('settingsOption');
 const settingsModal = document.getElementById('settingsModal');
 const closeSettings = document.getElementById('closeSettings');
@@ -92,14 +87,31 @@ function formatCurrency(amount) {
     return '₹' + Number(amount).toLocaleString('en-IN');
 }
 
+// ==================== SHOW/HIDE PAGES ====================
+function showLoginPage() {
+    authContainer.style.display = 'flex';
+    homePage.style.display = 'none';
+    loginForm.style.display = 'block';
+    signupForm.style.display = 'none';
+    loginError.textContent = '';
+    signupError.textContent = '';
+    loginEmail.value = '';
+    loginPassword.value = '';
+    console.log('📱 Showing login page');
+}
+
+function showHomePage() {
+    authContainer.style.display = 'none';
+    homePage.style.display = 'block';
+    console.log('🏠 Showing home page');
+}
+
 // ==================== AUTH FUNCTIONS ====================
-// Show/Hide Forms
 showSignup.addEventListener('click', () => {
     loginForm.style.display = 'none';
     signupForm.style.display = 'block';
     loginError.textContent = '';
     signupError.textContent = '';
-    // Clear fields
     signupName.value = '';
     signupEmail.value = '';
     signupPassword.value = '';
@@ -111,7 +123,6 @@ showLogin.addEventListener('click', () => {
     loginForm.style.display = 'block';
     loginError.textContent = '';
     signupError.textContent = '';
-    // Clear fields
     loginEmail.value = '';
     loginPassword.value = '';
 });
@@ -137,17 +148,15 @@ loginBtn.addEventListener('click', async () => {
     }
 });
 
-// Signup with Password Confirmation
+// Signup
 signupBtn.addEventListener('click', async () => {
     const name = signupName.value.trim();
     const email = signupEmail.value.trim();
     const password = signupPassword.value.trim();
     const confirmPassword = signupConfirmPassword.value.trim();
     
-    // Clear previous errors
     signupError.textContent = '';
     
-    // Validation
     if (!name || !email || !password || !confirmPassword) {
         signupError.textContent = 'Please fill all fields';
         return;
@@ -181,53 +190,38 @@ signupBtn.addEventListener('click', async () => {
     }
 });
 
-// Enter key support for signup
+// Enter key support
 signupPassword.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        signupConfirmPassword.focus();
-    }
+    if (e.key === 'Enter') signupConfirmPassword.focus();
 });
-
 signupConfirmPassword.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') signupBtn.click();
 });
-
-// Enter key support for login
 loginPassword.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') loginBtn.click();
 });
 
-// ==================== LOGOUT FUNCTION (FIXED) ====================
+// ==================== LOGOUT  ====================
 logoutBtn.addEventListener('click', async () => {
     if (confirm('Are you sure you want to logout?')) {
         try {
-            // First unsubscribe from Firestore listener
+            // 1. Unsubscribe from Firestore
             if (unsubscribe) {
                 unsubscribe();
                 unsubscribe = null;
             }
             
-            // Clear transactions
+            // 2. Clear transactions
             transactions = [];
             renderTransactions();
             
-            // Sign out from Firebase
+            // 3. Sign out from Firebase
             await signOut(auth);
             
-            // Manually hide home page and show auth container
-            homePage.style.display = 'none';
-            authContainer.style.display = 'flex';
+            // 4. FORCEFULLY show login page (even if auth state doesn't trigger)
+            showLoginPage();
             
-            // Show login form by default
-            loginForm.style.display = 'block';
-            signupForm.style.display = 'none';
-            
-            // Clear login fields
-            loginEmail.value = '';
-            loginPassword.value = '';
-            loginError.textContent = '';
-            
-            // Close dropdown if open
+            // 5. Close dropdown
             dropdownMenu.classList.remove('show');
             
             console.log('✅ Logged out successfully');
@@ -266,7 +260,6 @@ settingsModal.addEventListener('click', (e) => {
 });
 
 // ==================== TRANSACTION FUNCTIONS ====================
-// Load user transactions
 function loadUserTransactions(userId) {
     if (unsubscribe) {
         unsubscribe();
@@ -282,7 +275,6 @@ function loadUserTransactions(userId) {
     });
 }
 
-// Add Transaction
 addBtn.addEventListener('click', async () => {
     if (!currentUser) {
         alert('Please login first');
@@ -322,7 +314,6 @@ addBtn.addEventListener('click', async () => {
     }
 });
 
-// Delete Transaction
 async function deleteTransaction(id) {
     if (!currentUser) return;
     if (confirm('Are you sure you want to delete this transaction?')) {
@@ -335,7 +326,6 @@ async function deleteTransaction(id) {
     }
 }
 
-// Edit Transaction
 async function editTransaction(id) {
     if (!currentUser) return;
     const tx = transactions.find(t => t.id === id);
@@ -365,12 +355,12 @@ async function editTransaction(id) {
     const validCats = ['salary', 'food', 'travel', 'shopping', 'bills', 'education', 'entertainment', 'other'];
     const catLower = newCat.toLowerCase().trim();
     if (!validCats.includes(catLower)) {
-        alert('Invalid category. Use: salary, food, travel, shopping, bills, education, entertainment, other');
+        alert('Invalid category');
         return;
     }
 
     if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
-        alert('Invalid date format. Use YYYY-MM-DD');
+        alert('Invalid date format');
         return;
     }
 
@@ -394,7 +384,6 @@ async function editTransaction(id) {
     }
 }
 
-// Filter & Totals
 function getFiltered() {
     if (filterCategory === 'all') return transactions;
     return transactions.filter(tx => tx.category === filterCategory);
@@ -409,7 +398,6 @@ function computeTotals() {
     return { income, expenses, balance: income - expenses };
 }
 
-// Render Transactions
 function renderTransactions() {
     const { income, expenses, balance } = computeTotals();
     totalIncomeEl.textContent = formatCurrency(income);
@@ -488,7 +476,6 @@ function renderTransactions() {
     });
 }
 
-// Filter
 filterSelect.addEventListener('change', (e) => {
     filterCategory = e.target.value;
     renderTransactions();
@@ -500,50 +487,35 @@ clearFilterBtn.addEventListener('click', () => {
     renderTransactions();
 });
 
-// ==================== AUTH STATE OBSERVER (FIXED) ====================
+// ==================== AUTH STATE OBSERVER ====================
 onAuthStateChanged(auth, (user) => {
     if (user) {
         // User is logged in
         currentUser = user;
-        authContainer.style.display = 'none';
-        homePage.style.display = 'block';
+        showHomePage();
         userNameDisplay.textContent = user.displayName || user.email;
         settingsUserEmail.textContent = user.email;
         
-        // Set default date
         const today = new Date().toISOString().slice(0, 10);
         txDate.value = today;
         
-        // Load user's transactions
         loadUserTransactions(user.uid);
         console.log('✅ User logged in:', user.email);
     } else {
         // User is logged out
         currentUser = null;
         
-        // Unsubscribe from Firestore listener
         if (unsubscribe) {
             unsubscribe();
             unsubscribe = null;
         }
         
-        // Clear transactions
         transactions = [];
         renderTransactions();
         
-        // Show auth container, hide home page
-        authContainer.style.display = 'flex';
-        homePage.style.display = 'none';
-        
-        // Show login form by default
-        loginForm.style.display = 'block';
-        signupForm.style.display = 'none';
-        
-        // Clear any error messages
-        loginError.textContent = '';
-        signupError.textContent = '';
-        
-        console.log('👋 User logged out');
+        // Show login page
+        showLoginPage();
+        console.log('👋 User logged out - showing login page');
     }
 });
 
@@ -564,7 +536,6 @@ function setTheme(isDark) {
     }
 }
 
-// Load saved theme (default: dark)
 const savedTheme = localStorage.getItem('expenseTrackerTheme');
 if (savedTheme === 'light') {
     setTheme(false);
@@ -581,7 +552,6 @@ document.getElementById('darkModeSwitch').addEventListener('change', (e) => {
     setTheme(e.target.checked);
 });
 
-// Enter key for add
 txAmount.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') addBtn.click();
 });
